@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 097f9cf0cf6f006489801473fcbe654b, type: 3}
+  m_Name: Customer_1_Veronika
+  m_EditorClassIdentifier: Assembly-CSharp::Data.CustomerData
+  customerName: "\u0412\u0435\u0440\u043E\u043D\u0438\u043A\u0430"
+  characterSprite: {fileID: 0}
+  desiredRecipe: {fileID: 11400000, guid: 8556f03eb6b46d24ba7e6877c65fa2a0, type: 2}
+  isRecipeSecret: 0
+  introDialogue: {fileID: 11400000, guid: 3aef27a69c5ed8a4f9d07e25a3d86a48, type: 2}
+  successDialogue: {fileID: 11400000, guid: e044f890e1028d6498b7e1f28303330c, type: 2}
+  failureDialogue: {fileID: 11400000, guid: 5a9c8ab1f3c815840806f68ee47ccd08, type: 2}
