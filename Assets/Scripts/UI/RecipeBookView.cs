@@ -7,29 +7,29 @@ namespace UI
 {
     public class RecipeBookView : MonoBehaviour
     {
-        [Header("Кнопка управления")]
-        [SerializeField] private Button toggleBookButton; // Единственная кнопка для откр/закр
+        [Header("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")]
+        [SerializeField] private Button toggleBookButton; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅ
 
-        [Header("UI Панели")]
+        [Header("UI пїЅпїЅпїЅпїЅпїЅпїЅ")]
         [SerializeField] private CanvasGroup bookPanelGroup;
         [SerializeField] private Transform slotsContainer;
 
-        [Header("Префабы")]
+        [Header("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ")]
         [SerializeField] private GameObject recipeSlotPrefab;
 
-        private bool _isOpen = false; // Хранит текущее состояние книги
+        private bool _isOpen = false; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 
         private void Start()
         {
             if (toggleBookButton != null)
                 toggleBookButton.onClick.AddListener(ToggleBook);
 
-            // На старте игра всегда начинается с закрытой книгой
+            // пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             CloseBook();
         }
 
         /// <summary>
-        /// Метод-переключатель. Сам решает, открыть книгу или закрыть.
+        /// пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
         /// </summary>
         private void ToggleBook()
         {
@@ -51,36 +51,37 @@ namespace UI
             bookPanelGroup.interactable = true;
 
             RefreshRecipeList();
-            Debug.Log("[UI] Книга рецептов ОТКРЫТА.");
+            Debug.Log("[UI] пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.");
         }
 
-        private void CloseBook()
+        // Р‘С‹Р»Рѕ private, СЃС‚Р°Р»Рѕ public, С‡С‚РѕР±С‹ Unity UI РІРёРґРµР» СЌС‚РѕС‚ РјРµС‚РѕРґ
+        public void CloseBook()
         {
             _isOpen = false;
             bookPanelGroup.alpha = 0f;
             bookPanelGroup.blocksRaycasts = false;
             bookPanelGroup.interactable = false;
-            Debug.Log("[UI] Книга рецептов ЗАКРЫТА.");
+            Debug.Log("[UI] РљРЅРёРіР° СЂРµС†РµРїС‚РѕРІ Р—РђРљР Р«РўРђ.");
         }
 
         private void RefreshRecipeList()
         {
-            // Очищаем старые слоты
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             foreach (Transform child in slotsContainer)
             {
                 Destroy(child.gameObject);
             }
 
-            // Спавним актуальные слоты
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             if (BrewingManager.Instance != null && recipeSlotPrefab != null)
             {
                 foreach (RecipeData recipe in BrewingManager.Instance.AllRecipes)
                 {
                     GameObject newSlot = Instantiate(recipeSlotPrefab, slotsContainer);
-                    newSlot.transform.localScale = Vector3.one; // Фикс гигантских шрифтов
+                    newSlot.transform.localScale = Vector3.one; // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-                    // === ЖЕЛЕЗНЫЙ ФИКС СМЕЩЕНИЯ ВЛЕВО ===
-                    // Берем UI-компонент трансформации и сбрасываем его локальные координаты в ноль
+                    // === пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ ===
+                    // пїЅпїЅпїЅпїЅпїЅ UI-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ
                     RectTransform rectTransform = newSlot.GetComponent<RectTransform>();
                     if (rectTransform != null)
                     {
