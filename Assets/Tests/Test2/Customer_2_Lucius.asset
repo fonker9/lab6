@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: Customer_2_Lucius
   m_EditorClassIdentifier: Assembly-CSharp::Data.CustomerData
   customerName: "\u041B\u044E\u0446\u0438\u0443\u0441"
-  characterSprite: {fileID: 0}
   desiredRecipe: {fileID: 11400000, guid: 76633da22995516498842ecd64de8832, type: 2}
   isRecipeSecret: 0
+  neutralSprite: {fileID: -6663146268053561102, guid: 237c85998278f19468e2c99252de2992, type: 3}
+  joyfulSprite: {fileID: 7243501315171565916, guid: 66cdcfb2badcd5847952ae85558e4752, type: 3}
+  sadSprite: {fileID: -8956328533209046621, guid: 0325b36da51806c44a647429b1948b96, type: 3}
   introDialogue: {fileID: 11400000, guid: 34a743d083c8ae8488c29ba9b8f33471, type: 2}
   successDialogue: {fileID: 11400000, guid: 5b12f5601549b5144acbcf916f1dc555, type: 2}
   failureDialogue: {fileID: 11400000, guid: c46f84597bd64c646993e5f437dd5adf, type: 2}

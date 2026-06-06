@@ -13,6 +13,7 @@ namespace Core
     {
         [Tooltip("Список всех доступных рецептов в игре (заполняется в Инспекторе)")]
         [SerializeField] private List<RecipeData> allRecipes;
+        public List<RecipeData> AllRecipes => allRecipes;
 
         /// <summary>
         /// Запускает процесс варки на основе того, что сейчас лежит в InventoryManager

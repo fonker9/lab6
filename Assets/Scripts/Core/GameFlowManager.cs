@@ -1,12 +1,21 @@
+using Data;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Data;
 
 namespace Core
 {
     public class GameFlowManager : SingletonBase<GameFlowManager>
     {
         public enum GameState { Intro, CustomerDialogue, BrewingPhase, CustomerReaction, DaySummary }
+
+        // ==========================================
+        // === СОБЫТИЯ ДЛЯ UI ПЕРСОНАЖЕЙ (НОВОЕ) ===
+        // ==========================================
+        public event Action<CustomerData> OnCustomerArrived; // Срабатывает, когда заходит новый гость
+        public event Action<bool> OnCustomerServed;          // Срабатывает при отдаче зелья (true - успех, false - провал)
+        public event Action OnCustomerLeft;                  // Срабатывает, когда гость уходит
+        // ==========================================
 
         [Header("Конфигурация Дня")]
         [SerializeField] private List<CustomerData> dailyCustomers;
@@ -18,16 +27,12 @@ namespace Core
 
         private void Start()
         {
-            // На старте MVP разблокируем базовые рецепты, кроме секретного
-            // (В будущем это будет загружаться из сохранений)
             InitializeBaseRecipes();
-            
             StartDay();
         }
 
         private void OnEnable()
         {
-            // Подписываемся на окончание диалогов
             DialogueManager.Instance.OnDialogueEnded += OnDialogueEndedHandler;
         }
 
@@ -42,7 +47,7 @@ namespace Core
             Debug.Log("<color=orange>[GameFlow] Обучающий день начался!</color>");
             _currentCustomerIndex = 0;
             _currentScore = 0;
-            
+
             MoveToNextCustomer();
         }
 
@@ -52,10 +57,13 @@ namespace Core
             {
                 _currentCustomer = dailyCustomers[_currentCustomerIndex];
                 _currentState = GameState.CustomerDialogue;
-                
+
+                // === ДЛЯ UI ПЕРСОНАЖЕЙ ===
+                // Говорим визуалу: "Появился новый гость, включи его нейтральный спрайт"
+                OnCustomerArrived?.Invoke(_currentCustomer);
+
                 Debug.Log($"\n<color=cyan>[GameFlow] Посетитель [{_currentCustomerIndex + 1}/{dailyCustomers.Count}] заходит в кафе: {_currentCustomer.CustomerName}</color>");
-                
-                // Запускаем вводный диалог гостя
+
                 DialogueManager.Instance.StartDialogue(_currentCustomer.IntroDialogue);
             }
             else
@@ -64,34 +72,29 @@ namespace Core
             }
         }
 
-        // Срабатывает автоматически, когда DialogueManager закончил крутить текст
         private void OnDialogueEndedHandler()
         {
-            // Если гость закончил вводную фразу -> переходим к варке
             if (_currentState == GameState.CustomerDialogue)
             {
                 _currentState = GameState.BrewingPhase;
                 Debug.Log("[GameFlow] Ждем, пока игрок сварит и отдаст напиток... (Нажмите Space в тестере для варки)");
             }
-            // Если гость закончил говорить финальную фразу (успех/провал) -> зовем следующего
             else if (_currentState == GameState.CustomerReaction)
             {
+                // === ДЛЯ UI ПЕРСОНАЖЕЙ ===
+                // Перед тем как переключить индекс на нового гостя, говорим старому: "Твой диалог окончен, скройся с экрана"
+                OnCustomerLeft?.Invoke();
+
                 _currentCustomerIndex++;
                 MoveToNextCustomer();
             }
         }
 
-        /// <summary>
-        /// Публичный метод, который будет вызываться по кнопке UI "Подать напиток".
-        /// Сейчас мы вызовем его из нашего обновленного тестера.
-        /// </summary>
         public void ServeDrink()
         {
             if (_currentState != GameState.BrewingPhase) return;
 
-            // Запускаем варку и получаем результат
             RecipeData brewedPotion = BrewingManager.Instance.BrewPotion();
-
             _currentState = GameState.CustomerReaction;
 
             // Проверяем, угадал ли игрок рецепт
@@ -99,24 +102,31 @@ namespace Core
             {
                 // УСПЕХ
                 _currentScore += 1;
+
+                // === ДЛЯ UI ПЕРСОНАЖЕЙ ===
+                // Сигналим визуалу: "Успех! Включи радостную эмоцию"
+                OnCustomerServed?.Invoke(true);
+
                 Debug.Log($"<color=green>[GameFlow] Правильно! Очки: {_currentScore}</color>");
-                
-                // Специфика MVP: если рецепт был секретным (3-й гость) — открываем его в книге!
+
                 if (_currentCustomer.IsRecipeSecret)
                 {
                     RecipeBookManager.Instance.UnlockRecipe(brewedPotion.RecipeID);
                 }
 
-                // Запускаем радостный диалог гостя
                 DialogueManager.Instance.StartDialogue(_currentCustomer.SuccessDialogue);
             }
             else
             {
-                // ПРОВАЛ (сварил не то или получилась жижа)
+                // ПРОВАЛ
                 _currentScore -= 1;
+
+                // === ДЛЯ UI ПЕРСОНАЖЕЙ ===
+                // Сигналим визуалу: "Ошибка! Включи грустную эмоцию"
+                OnCustomerServed?.Invoke(false);
+
                 Debug.Log($"<color=red>[GameFlow] Не угадал. Очки: {_currentScore}</color>");
-                
-                // Запускаем недовольный диалог гостя
+
                 DialogueManager.Instance.StartDialogue(_currentCustomer.FailureDialogue);
             }
         }
@@ -127,7 +137,6 @@ namespace Core
             Debug.Log("\n<color=orange>[GameFlow] === КОНЕЦ РАБОЧЕГО ДНЯ ===</color>");
             Debug.Log($"Итоговые очки: {_currentScore}");
 
-            // Оценка по ТЗ
             if (_currentScore >= 3)
             {
                 Debug.Log("<color=magenta>[GameFlow] Итог: \"Поздравляю, вы успешно прошли обучение\"</color>");
@@ -140,10 +149,14 @@ namespace Core
 
         private void InitializeBaseRecipes()
         {
-            // Для теста MVP автоматически откроем какой-нибудь стартовый рецепт
-            // Чтобы игрок знал, из чего варить первым двум гостям
-            // Например, если у тебя есть ID "energy_potion", можно вписать его сюда:
-            // RecipeBookManager.Instance.UnlockRecipe("energy_potion");
+            // Место для будущей инициализации базовых рецептов
+
+            // Разблокируем базовые рецепты для первых двух посетителей
+            if (RecipeBookManager.Instance != null)
+            {
+                RecipeBookManager.Instance.UnlockRecipe("vigorPotion"); // ID твоего первого рецепта
+                RecipeBookManager.Instance.UnlockRecipe("luck_elixir");    // ID твоего второго рецепта
+            }
         }
     }
 }
