@@ -7,29 +7,29 @@ namespace UI
 {
     public class RecipeBookView : MonoBehaviour
     {
-        [Header("������ ����������")]
-        [SerializeField] private Button toggleBookButton; // ������������ ������ ��� ����/����
+        [Header("Кнопка управления")]
+        [SerializeField] private Button toggleBookButton; // Единственная кнопка для откр/закр
 
-        [Header("UI ������")]
+        [Header("UI Панели")]
         [SerializeField] private CanvasGroup bookPanelGroup;
-        [SerializeField] private Transform slotsContainer;
+        [SerializeField] private Transform slotsContainer; 
 
-        [Header("�������")]
-        [SerializeField] private GameObject recipeSlotPrefab;
+        [Header("Префабы")]
+        [SerializeField] private GameObject recipeSlotPrefab; 
 
-        private bool _isOpen = false; // ������ ������� ��������� �����
+        private bool _isOpen = false; // Хранит текущее состояние книги
 
         private void Start()
         {
-            if (toggleBookButton != null)
+            if (toggleBookButton != null) 
                 toggleBookButton.onClick.AddListener(ToggleBook);
 
-            // �� ������ ���� ������ ���������� � �������� ������
+            // На старте игра всегда начинается с закрытой книгой
             CloseBook();
         }
 
         /// <summary>
-        /// �����-�������������. ��� ������, ������� ����� ��� �������.
+        /// Метод-переключатель. Сам решает, открыть книгу или закрыть.
         /// </summary>
         private void ToggleBook()
         {
@@ -51,10 +51,9 @@ namespace UI
             bookPanelGroup.interactable = true;
 
             RefreshRecipeList();
-            Debug.Log("[UI] ����� �������� �������.");
+            Debug.Log("[UI] Книга рецептов ОТКРЫТА.");
         }
 
-        // Было private, стало public, чтобы Unity UI видел этот метод
         public void CloseBook()
         {
             _isOpen = false;
@@ -66,30 +65,20 @@ namespace UI
 
         private void RefreshRecipeList()
         {
-            // ������� ������ �����
+            // Очищаем старые слоты
             foreach (Transform child in slotsContainer)
             {
                 Destroy(child.gameObject);
             }
 
-            // ������� ���������� �����
+            // Спавним актуальные слоты
             if (BrewingManager.Instance != null && recipeSlotPrefab != null)
             {
                 foreach (RecipeData recipe in BrewingManager.Instance.AllRecipes)
                 {
                     GameObject newSlot = Instantiate(recipeSlotPrefab, slotsContainer);
-                    newSlot.transform.localScale = Vector3.one; // ���� ���������� �������
-
-                    // === �������� ���� �������� ����� ===
-                    // ����� UI-��������� ������������� � ���������� ��� ��������� ���������� � ����
-                    RectTransform rectTransform = newSlot.GetComponent<RectTransform>();
-                    if (rectTransform != null)
-                    {
-                        rectTransform.anchoredPosition = Vector2.zero;
-                        rectTransform.localPosition = Vector3.zero;
-                    }
-                    // ====================================
-
+                    newSlot.transform.localScale = Vector3.one; // Наш фикс гигантских шрифтов
+                    
                     RecipeSlotView slotView = newSlot.GetComponent<RecipeSlotView>();
                     if (slotView != null)
                     {
